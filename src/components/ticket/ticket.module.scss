@@ -1,0 +1,46 @@
+.container {
+  font-weight: 600;
+  background-color: white;
+  padding: 25px 45px;
+  border-radius: 10px;
+
+  .topSide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 7px;
+  }
+
+  .price {
+    font-size: 28px;
+    color: hsl(207, 90%, 54%);
+    flex: 1;
+  
+    p {
+     margin: 0; 
+    }
+  }
+
+  .bottomSide {
+    width: 100%;
+    
+    .routInfo {
+      display: flex;
+      font-size: 16px;
+      text-transform: uppercase;
+      width: 90%;
+      justify-content: space-between;
+      
+    }
+    .routTitle {
+      color: #A0B0B9;
+      margin-bottom: 10px;
+    }
+
+    .routBody {
+      margin: 0;
+    }
+  }
+  
+}
+

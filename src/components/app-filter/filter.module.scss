@@ -1,0 +1,77 @@
+.filter {
+  margin: 0;
+  grid-area: aside;
+  width: 290px;
+  padding: 20px;
+  overflow: hidden;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 15px -5px rgba(34, 60, 80, 0.2);
+}
+
+.filterName {
+  margin: 0;
+  font-weight: 400;
+  font-size: 21px;
+}
+
+.filterListItem {
+  position: relative;
+
+  &:hover::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -20px;
+    right: -20px;
+    bottom: -10px;
+    background-color: #f1fcff;
+    z-index: 1;
+  }
+
+  & > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  &:not(:last-child) {
+    margin-bottom: 20px;
+  }
+}
+
+.inputCheckbox {
+  position: absolute;
+  z-index: -1;
+  opacity: 0;
+}
+
+.inputCheckbox + label {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.inputCheckbox + label::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  flex-grow: 0;
+  border: 1px solid #2196f3;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.inputCheckbox:checked + label::before {
+  background: url('../../assets/Shape.svg') no-repeat center center;
+}
+
+.filterList {}

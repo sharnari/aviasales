@@ -1,0 +1,15 @@
+.height {
+  display: grid;
+  min-height: 96px;
+  height: 20vh;
+  align-items: center;
+
+  img {
+    height: fit-content;
+  }
+}
+
+.positionLogo {
+  display: flex;
+  margin: 0 auto;
+}
