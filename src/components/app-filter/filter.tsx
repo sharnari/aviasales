@@ -1,31 +1,44 @@
+import { useDispatch, useSelector } from "react-redux";
+import { handleCheckboxChange } from "../../store/filterSlice";
+
 import styles from "./filter.module.scss";
 
-const Filter = () => {
+interface CheckboxState {
+  id: string;
+  text: string;
+  isCheck: boolean;
+}
+
+const Filter: React.FC = () => {
+  const dispatch = useDispatch();
+  const checkboxes = useSelector(
+    (state: { filter: { filter: CheckboxState[] } }) => state.filter.filter
+  );
+  const onCheckboxChange = (id: string) => {
+    dispatch(handleCheckboxChange(id));
+  };
+
+  const filterItemJSX = () => {
+    return checkboxes.map((el: CheckboxState) => {
+      return (
+        <li key={el.id} className={styles.filterListItem}>
+          <input
+            className={styles.inputCheckbox}
+            id={el.id}
+            type="checkbox"
+            checked={el.isCheck}
+            onChange={() => onCheckboxChange(el.id)}
+          />
+          <label htmlFor={el.id}>{el.text}</label>
+        </li>
+      );
+    });
+  };
+
   return (
     <div className={styles.filter}>
-      <h2 className={styles.filterName}>количество пересадок</h2>
-      <ul className={styles.filterList}>
-        <li className={styles.filterListItem}>
-          <input className={styles.inputCheckbox} id="all" type="checkbox" />
-          <label htmlFor="all">Все</label>
-        </li>
-        <li className={styles.filterListItem}>
-          <input className={styles.inputCheckbox} type="checkbox" id="no-transfers" />
-          <label htmlFor="no-transfers">Без пересадок</label>
-        </li>
-        <li className={styles.filterListItem}>
-          <input className={styles.inputCheckbox} type="checkbox" id="1-transfer" />
-          <label htmlFor="1-transfer">1 пересадка</label>
-        </li>
-        <li className={styles.filterListItem}>
-          <input className={styles.inputCheckbox} type="checkbox" id="2-transfers" />
-          <label htmlFor="2-transfers">2 пересадка</label>
-        </li>
-        <li className={styles.filterListItem}>
-          <input className={styles.inputCheckbox} type="checkbox" id="3-transfers" />
-          <label htmlFor="3-transfers">3 пересадка</label>
-        </li>
-      </ul>
+      <h2 className={styles.filterName}>Количество пересадок</h2>
+      <ul className={styles.filterList}>{filterItemJSX()}</ul>
     </div>
   );
 };
