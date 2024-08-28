@@ -1,4 +1,5 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+import Service, { SearchIdResponce, TicketsResponse } from "../service/service";
 
 interface CheckboxState {
   id: string;
@@ -6,11 +7,32 @@ interface CheckboxState {
   isCheck: boolean;
 }
 
-interface FilterState {
-  filter: CheckboxState[]
+export interface StateAviasales {
+  filter: CheckboxState[];
+  filterTickets: string;
+  status: null | string;
+  error: null | string;
+  tickets: any;
+  searchId: null | string;
 }
 
-const initialState: FilterState = {
+const service: Service = new Service();
+
+export const fetchSearchId = createAsyncThunk<SearchIdResponce | undefined>(
+  "store/fetchSearchId",
+  async function () {
+    return await service.getSearchId();
+  }
+);
+
+export const fetchTickets = createAsyncThunk<
+  TicketsResponse | undefined,
+  string
+>("store/fetchTickets", async function (searchId) {
+  return await service.getTickets(searchId);
+});
+
+const initialState: StateAviasales = {
   filter: [
     { id: "all", text: "Все", isCheck: false },
     { id: "none", text: "Без пересадок", isCheck: false },
@@ -18,10 +40,15 @@ const initialState: FilterState = {
     { id: "two", text: "2 пересадки", isCheck: false },
     { id: "three", text: "3 пересадки", isCheck: false },
   ],
+  filterTickets: "самый дешевый",
+  status: null,
+  error: null,
+  tickets: [],
+  searchId: null,
 };
 
 const filterSlice = createSlice({
-  name: "filter",
+  name: "store",
   initialState,
   reducers: {
     handleCheckboxChange(state, action: PayloadAction<string>) {
@@ -53,8 +80,40 @@ const filterSlice = createSlice({
         );
       }
     },
+    handleRadioChange(state, action: PayloadAction<string>) {
+      state.filterTickets = action.payload;
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchSearchId.pending, (state, action) => {
+      state.status = "loading";
+      state.error = null;
+    });
+    builder.addCase(fetchSearchId.fulfilled, (state, action) => {
+      if (action.payload) {
+        state.searchId = action.payload.searchId;
+      }
+      state.status = "succeeded";
+    });
+    builder.addCase(fetchSearchId.rejected, (state, action) => {
+      state.status = "failed";
+      state.error = action.error.message || "Failed to fetch tickets";
+    });
+    builder.addCase(fetchTickets.pending, (state, action) => {
+      state.status = "loading tickets";
+    });
+    builder.addCase(fetchTickets.fulfilled, (state, action) => {
+      if (action.payload) {
+        state.tickets = action.payload.tickets;
+      }
+      state.status = "tickets succeeded";
+    });
+    builder.addCase(fetchTickets.rejected, (state, action) => {
+      state.status = "tickets failed";
+      state.error = action.error.message || "Failed to fetch tickets";
+    });
   },
 });
 
-export const { handleCheckboxChange } = filterSlice.actions;
+export const { handleCheckboxChange, handleRadioChange } = filterSlice.actions;
 export default filterSlice.reducer;

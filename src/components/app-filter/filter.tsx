@@ -12,7 +12,7 @@ interface CheckboxState {
 const Filter: React.FC = () => {
   const dispatch = useDispatch();
   const checkboxes = useSelector(
-    (state: { filter: { filter: CheckboxState[] } }) => state.filter.filter
+    (state: { store: { filter: CheckboxState[] } }) => state.store.filter
   );
   const onCheckboxChange = (id: string) => {
     dispatch(handleCheckboxChange(id));

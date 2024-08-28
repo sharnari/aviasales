@@ -1,0 +1,53 @@
+export interface SearchIdResponce {
+  searchId: string;
+}
+
+export interface Segment {
+  origin: string;
+  destination: string;
+  date: string;
+  duration: number;
+  stops: string[];
+}
+
+export interface Ticket {
+  price: number;
+  carrier: string;
+  segments: Segment[];
+}
+
+export interface TicketsResponse {
+  tickets: Ticket[];
+  stop: boolean;
+}
+
+export default class Service {
+  baseURL: string = 'https://aviasales-test-api.kata.academy'
+  ticketsURL: string = '/tickets'
+  options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+    },
+  }
+
+  wrapperQueryTryCatch = async (queryURL: string) => {
+    try {
+      const response = await fetch(queryURL, this.options);
+      if (!response.ok) {
+        throw new Error(`Could not fetch ${queryURL} received ${response.status}`)
+      }
+      return await response.json()
+    } catch (error) { console.error('Fetch error:', error); }
+  }
+
+  getSearchId = async (): Promise<SearchIdResponce | undefined> => {
+    const queryURL = `${this.baseURL}/search`;
+    return await this.wrapperQueryTryCatch(queryURL)
+  }
+
+  getTickets = async (searchId: string): Promise<TicketsResponse | undefined> => {
+    const queryURL = `${this.baseURL}${this.ticketsURL}?searchId=${searchId}`;
+    return await this.wrapperQueryTryCatch(queryURL)
+  }
+}

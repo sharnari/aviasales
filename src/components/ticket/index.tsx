@@ -1,3 +1,3 @@
-import Ticket from "./ticket";
+import TicketFC from "./ticket";
 
-export default Ticket;
+export default TicketFC;
