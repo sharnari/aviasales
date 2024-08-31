@@ -22,8 +22,9 @@ export interface TicketsResponse {
 }
 
 export default class Service {
-  baseURL: string = 'https://aviasales-test-api.kata.academy'
-  ticketsURL: string = '/tickets'
+  baseURL: string = `https://aviasales-test-api.kata.academy`
+  ticketsURL: string = `/tickets`
+  imagesURL: string = `https://pics.avs.io/120/54`
   options = {
     method: 'GET',
     headers: {
@@ -50,4 +51,9 @@ export default class Service {
     const queryURL = `${this.baseURL}${this.ticketsURL}?searchId=${searchId}`;
     return await this.wrapperQueryTryCatch(queryURL)
   }
+
+  getImage = (name: string) => {
+    return `${this.imagesURL}/${name}.png`;
+  } 
+
 }
