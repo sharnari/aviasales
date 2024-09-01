@@ -1,5 +1,9 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
-import Service, { SearchIdResponce, TicketsResponse } from "../service/service";
+import Service, {
+  SearchIdResponce,
+  Ticket,
+  TicketsResponse,
+} from "../service/service";
 
 interface CheckboxState {
   id: string;
@@ -14,6 +18,8 @@ export interface StateAviasales {
   error: null | string;
   tickets: any;
   searchId: null | string;
+  filteredTickets: Ticket[];
+  displayedTicketsCount: number;
 }
 
 const service: Service = new Service();
@@ -45,6 +51,8 @@ const initialState: StateAviasales = {
   error: null,
   tickets: [],
   searchId: null,
+  filteredTickets: [],
+  displayedTicketsCount: 5,
 };
 
 const filterSlice = createSlice({
@@ -79,9 +87,52 @@ const filterSlice = createSlice({
             : checkbox
         );
       }
+      filterSlice.caseReducers.applyFiltersAndSort(state);
     },
+
     handleRadioChange(state, action: PayloadAction<string>) {
       state.filterTickets = action.payload;
+      filterSlice.caseReducers.applyFiltersAndSort(state);
+    },
+
+    applyFiltersAndSort(state) {
+      const activeFilters = state.filter
+        .filter((arg) => arg.isCheck && arg.id !== "all")
+        .map((arg) => arg.id);
+
+      let filteredTickets = state.tickets;
+      if (activeFilters.length > 0 && !activeFilters.includes("all")) {
+        filteredTickets = filteredTickets.filter((ticket: Ticket) => {
+          const stops = ticket.segments[0].stops.length;
+          return (
+            (activeFilters.includes("none") && stops === 0) ||
+            (activeFilters.includes("one") && stops === 1) ||
+            (activeFilters.includes("two") && stops === 2) ||
+            (activeFilters.includes("three") && stops === 3)
+          );
+        });
+      }
+      filteredTickets.sort((ticket_1: Ticket, ticket_2: Ticket) => {
+        if (state.filterTickets === "самый дешевый") {
+          return ticket_1.price - ticket_2.price;
+        } else if (state.filterTickets === "самый быстрый") {
+          const duration_1 =
+            ticket_1.segments[0].duration + ticket_1.segments[1].duration;
+          const duration_2 =
+            ticket_2.segments[0].duration + ticket_2.segments[1].duration;
+          return duration_1 - duration_2;
+        }
+        return 0;
+      });
+      if (activeFilters.length === 0 && !state.filter.some((arg) => arg.isCheck)) {
+        state.filteredTickets = [];
+      } else {
+        state.filteredTickets = filteredTickets;
+      }
+    },
+
+    showMoreTickets(state) {
+      state.displayedTicketsCount += 5;
     },
   },
   extraReducers: (builder) => {
@@ -105,6 +156,7 @@ const filterSlice = createSlice({
     builder.addCase(fetchTickets.fulfilled, (state, action) => {
       if (action.payload) {
         state.tickets = action.payload.tickets;
+        filterSlice.caseReducers.applyFiltersAndSort(state);
       }
       state.status = "tickets succeeded";
     });
@@ -115,5 +167,5 @@ const filterSlice = createSlice({
   },
 });
 
-export const { handleCheckboxChange, handleRadioChange } = filterSlice.actions;
+export const { handleCheckboxChange, handleRadioChange, showMoreTickets } = filterSlice.actions;
 export default filterSlice.reducer;

@@ -18,12 +18,12 @@ const TicketFC: React.FC<TicketFCProps> = (props) => {
   const numberSpace = numberService.spaceDigits;
 
   const { info } = props;
-  console.log(info);
 
   const declensionText = (count: number): string => {
     switch (true) {
-      case (count === 1): return "пересадка";
-      case (count === 2 || count === 3 || count === 4):
+      case count === 1:
+        return "пересадка";
+      case count === 2 || count === 3 || count === 4:
         return "пересадки";
       default:
         return "пересадок";
@@ -64,7 +64,9 @@ const TicketFC: React.FC<TicketFCProps> = (props) => {
             <p className={styles.routBody}> {duration}</p>
           </div>
           <div className={styles.routTransfer}>
-            <p className={styles.routTitle}>{stopsCount} {declensionText(stopsCount)}</p>
+            <p className={styles.routTitle}>
+              {stopsCount} {declensionText(stopsCount)}
+            </p>
             <p className={styles.routBody}>{stops}</p>
           </div>
         </div>
