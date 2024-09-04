@@ -1,3 +1,3 @@
-import MenuApp from "./menu";
+import MenuApp from './menu'
 
-export default MenuApp;
+export default MenuApp

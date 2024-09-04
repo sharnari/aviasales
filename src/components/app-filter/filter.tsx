@@ -1,22 +1,21 @@
-import { useDispatch, useSelector } from "react-redux";
-import { handleCheckboxChange } from "../../store/filterSlice";
+import { useDispatch, useSelector } from 'react-redux'
 
-import styles from "./filter.module.scss";
+import { handleCheckboxChange } from '../../store/filterSlice'
+
+import styles from './filter.module.scss'
 
 interface CheckboxState {
-  id: string;
-  text: string;
-  isCheck: boolean;
+  id: string
+  text: string
+  isCheck: boolean
 }
 
 const Filter: React.FC = () => {
-  const dispatch = useDispatch();
-  const checkboxes = useSelector(
-    (state: { store: { filter: CheckboxState[] } }) => state.store.filter
-  );
+  const dispatch = useDispatch()
+  const checkboxes = useSelector((state: { store: { filter: CheckboxState[] } }) => state.store.filter)
   const onCheckboxChange = (id: string) => {
-    dispatch(handleCheckboxChange(id));
-  };
+    dispatch(handleCheckboxChange(id))
+  }
 
   const filterItemJSX = () => {
     return checkboxes.map((el: CheckboxState) => {
@@ -31,16 +30,16 @@ const Filter: React.FC = () => {
           />
           <label htmlFor={el.id}>{el.text}</label>
         </li>
-      );
-    });
-  };
+      )
+    })
+  }
 
   return (
     <div className={styles.filter}>
       <h2 className={styles.filterName}>Количество пересадок</h2>
       <ul className={styles.filterList}>{filterItemJSX()}</ul>
     </div>
-  );
-};
+  )
+}
 
-export default Filter;
+export default Filter

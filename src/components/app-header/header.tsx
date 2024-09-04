@@ -1,5 +1,6 @@
-import styles from "./header.module.scss";
-import logo from "../../assets/Logo.png";
+import logo from '../../assets/Logo.png'
+
+import styles from './header.module.scss'
 
 const HeaderApp: React.FC = () => {
   return (
@@ -8,7 +9,7 @@ const HeaderApp: React.FC = () => {
         <img src={logo} alt="logo Aviasales" />
       </div>
     </header>
-  );
-};
+  )
+}
 
-export default HeaderApp;
+export default HeaderApp
