@@ -15,7 +15,7 @@ export interface StateAviasales {
   error: null | string
   tickets: Ticket[]
   searchId: null | string
-  filteredTickets: Ticket[]
+  // filteredTickets: Ticket[]
   displayedTicketsCount: number
 }
 
@@ -58,7 +58,7 @@ const initialState: StateAviasales = {
   error: null,
   tickets: [],
   searchId: null,
-  filteredTickets: [],
+  // filteredTickets: [],
   displayedTicketsCount: 5,
 }
 
