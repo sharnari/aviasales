@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
+
 import Service, { SearchIdResponce, Ticket, TicketsResponse } from '../service/service'
 
 interface CheckboxState {
@@ -12,7 +13,7 @@ export interface StateAviasales {
   filterTickets: string
   status: null | string
   error: null | string
-  tickets: any
+  tickets: Ticket[]
   searchId: null | string
   filteredTickets: Ticket[]
   displayedTicketsCount: number
@@ -46,11 +47,11 @@ export const fetchTickets = createAsyncThunk<TicketsResponse | undefined, string
 
 const initialState: StateAviasales = {
   filter: [
-    { id: 'all', text: 'Все', isCheck: false },
-    { id: 'none', text: 'Без пересадок', isCheck: false },
-    { id: 'one', text: '1 пересадка', isCheck: false },
-    { id: 'two', text: '2 пересадки', isCheck: false },
-    { id: 'three', text: '3 пересадки', isCheck: false },
+    { id: 'all', text: 'Все', isCheck: true },
+    { id: 'none', text: 'Без пересадок', isCheck: true },
+    { id: 'one', text: '1 пересадка', isCheck: true },
+    { id: 'two', text: '2 пересадки', isCheck: true },
+    { id: 'three', text: '3 пересадки', isCheck: true },
   ],
   filterTickets: 'самый дешевый',
   status: null,
@@ -132,7 +133,7 @@ const filterSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchSearchId.pending, (state, action) => {
+    builder.addCase(fetchSearchId.pending, (state) => {
       state.status = 'loading'
       state.error = null
     })
@@ -146,7 +147,7 @@ const filterSlice = createSlice({
       state.status = 'failed'
       state.error = action.error.message || 'Failed to fetch tickets'
     })
-    builder.addCase(fetchTickets.pending, (state, action) => {
+    builder.addCase(fetchTickets.pending, (state) => {
       state.status = 'loading tickets'
     })
     builder.addCase(fetchTickets.fulfilled, (state, action) => {
