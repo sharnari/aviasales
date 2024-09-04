@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 
 import { Ticket } from '../../service/service'
 import { useDispatch, useSelector } from '../../store'
@@ -51,7 +51,7 @@ const App: React.FC = () => {
     }
   }, [dispatch, searchId])
 
-  const applyFiltersAndSort = (tickets: Ticket[]) => {
+  const applyFiltersAndSort = useMemo(() => {
     const activeFilters = filter.filter((arg) => arg.isCheck && arg.id !== 'all').map((arg) => arg.id)
     if (activeFilters.length === 0) {
       return tickets
@@ -79,7 +79,7 @@ const App: React.FC = () => {
       return 0
     })
     return filteredTickets
-  }
+  }, [tickets, filter, filterTickets])
 
   if (isOffline) {
     return <ErrorAlert errorMessage="Нет подключения к интернету. Пожалуйста, проверьте соединение." />
@@ -102,7 +102,7 @@ const App: React.FC = () => {
           <MenuApp />
           <div className="tickets">
             <ul className="tickets--list">
-              <TicketsGenerateJSX tickets={applyFiltersAndSort(tickets)} />
+              <TicketsGenerateJSX tickets={applyFiltersAndSort} />
             </ul>
             {shouldShowMoreButton && (
               <button className={styles.more} onClick={() => dispatch(showMoreTickets())}>
