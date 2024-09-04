@@ -21,6 +21,7 @@ const App: React.FC = () => {
   )
   const status = useSelector((state: { store: { status: string | null } }) => state.store.status)
   const error = useSelector((state: { store: { error: string | null } }) => state.store.error)
+  const filterTickets = useSelector((state: { store: { filterTickets: string } }) => state.store.filterTickets)
   const [isOffline, setIsOffline] = useState(false)
 
   useEffect(() => {
@@ -50,6 +51,40 @@ const App: React.FC = () => {
     }
   }, [dispatch, searchId])
 
+  // ---------------------------------------------------------------------
+
+  const applyFiltersAndSort = (tickets: Ticket[]) => {
+    const activeFilters = filter.filter((arg) => arg.isCheck && arg.id !== 'all').map((arg) => arg.id)
+    if (activeFilters.length === 0) {
+      return tickets
+    }
+    let filteredTickets = tickets
+    if (activeFilters.length > 0 && !activeFilters.includes('all')) {
+      filteredTickets = filteredTickets.filter((ticket: Ticket) => {
+        const stops = ticket.segments[0].stops.length
+        return (
+          (activeFilters.includes('none') && stops === 0) ||
+          (activeFilters.includes('one') && stops === 1) ||
+          (activeFilters.includes('two') && stops === 2) ||
+          (activeFilters.includes('three') && stops === 3)
+        )
+      })
+    }
+    filteredTickets.sort((ticket_1: Ticket, ticket_2: Ticket) => {
+      if (filterTickets === 'самый дешевый') {
+        return ticket_1.price - ticket_2.price
+      } else if (filterTickets === 'самый быстрый') {
+        const duration_1 = ticket_1.segments[0].duration + ticket_1.segments[1].duration
+        const duration_2 = ticket_2.segments[0].duration + ticket_2.segments[1].duration
+        return duration_1 - duration_2
+      }
+      return 0
+    })
+    return filteredTickets
+  }
+
+  // ----------------------------------------------------------------------
+
   if (isOffline) {
     return <ErrorAlert errorMessage="Нет подключения к интернету. Пожалуйста, проверьте соединение." />
   } else if (error) {
@@ -71,7 +106,7 @@ const App: React.FC = () => {
           <MenuApp />
           <div className="tickets">
             <ul className="tickets--list">
-              <TicketsGenerateJSX tickets={tickets} />
+              <TicketsGenerateJSX tickets={applyFiltersAndSort(tickets)} />
             </ul>
             {shouldShowMoreButton && (
               <button className={styles.more} onClick={() => dispatch(showMoreTickets())}>
