@@ -51,8 +51,6 @@ const App: React.FC = () => {
     }
   }, [dispatch, searchId])
 
-  // ---------------------------------------------------------------------
-
   const applyFiltersAndSort = (tickets: Ticket[]) => {
     const activeFilters = filter.filter((arg) => arg.isCheck && arg.id !== 'all').map((arg) => arg.id)
     if (activeFilters.length === 0) {
@@ -82,8 +80,6 @@ const App: React.FC = () => {
     })
     return filteredTickets
   }
-
-  // ----------------------------------------------------------------------
 
   if (isOffline) {
     return <ErrorAlert errorMessage="Нет подключения к интернету. Пожалуйста, проверьте соединение." />
