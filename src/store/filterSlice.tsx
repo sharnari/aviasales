@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
 
-import Service, { SearchIdResponce, Ticket, TicketsResponse } from '../service/service'
+import Service, { SearchIdResponce, Ticket } from '../service/service'
 
 export interface CheckboxState {
   id: string
@@ -24,25 +24,17 @@ export const fetchSearchId = createAsyncThunk<SearchIdResponce | undefined>('sto
   return await service.getSearchId()
 })
 
-export const fetchTickets = createAsyncThunk<TicketsResponse | undefined, string>(
-  'store/fetchTickets',
-  async function (searchId) {
-    let shouldContinue = true
-    // let skokoRazBilZapros = 0
-    const allTickets: Ticket[] = []
-    while (shouldContinue) {
-      const response = await service.getTickets(searchId)
-      // skokoRazBilZapros++
-      // console.log(skokoRazBilZapros)
-      if (response) {
-        const { tickets, stop } = response
-        allTickets.push(...tickets)
-        shouldContinue = !stop
-      }
+export const fetchTickets = createAsyncThunk<void, string>('store/fetchTickets', async (searchId, { dispatch }) => {
+  let shouldContinue = true
+  while (shouldContinue) {
+    const response = await service.getTickets(searchId)
+    if (response) {
+      const { tickets, stop } = response
+      dispatch(addTickets(tickets)) // Добавляем новые билеты по мере получения
+      shouldContinue = !stop
     }
-    return { tickets: allTickets, stop: true }
   }
-)
+})
 
 const initialState: StateAviasales = {
   filter: [
@@ -95,7 +87,12 @@ const filterSlice = createSlice({
     showMoreTickets(state) {
       state.displayedTicketsCount += 5
     },
+
+    addTickets(state, action: PayloadAction<Ticket[]>) {
+      state.tickets.push(...action.payload) // Добавляем новые билеты
+    },
   },
+
   extraReducers: (builder) => {
     builder.addCase(fetchSearchId.pending, (state) => {
       state.status = 'loading'
@@ -114,10 +111,7 @@ const filterSlice = createSlice({
     builder.addCase(fetchTickets.pending, (state) => {
       state.status = 'loading tickets'
     })
-    builder.addCase(fetchTickets.fulfilled, (state, action) => {
-      if (action.payload) {
-        state.tickets = action.payload.tickets
-      }
+    builder.addCase(fetchTickets.fulfilled, (state) => {
       state.status = 'tickets succeeded'
     })
     builder.addCase(fetchTickets.rejected, (state, action) => {
@@ -127,5 +121,5 @@ const filterSlice = createSlice({
   },
 })
 
-export const { handleCheckboxChange, handleRadioChange, showMoreTickets } = filterSlice.actions
+export const { handleCheckboxChange, handleRadioChange, showMoreTickets, addTickets } = filterSlice.actions
 export default filterSlice.reducer
