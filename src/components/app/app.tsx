@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 
 import { Ticket } from '../../service/service'
 import { useDispatch, useSelector } from '../../store'
-import { fetchSearchId, fetchTickets, showMoreTickets } from '../../store/filterSlice'
+import { fetchSearchId, fetchTickets, showMoreTickets, CheckboxState } from '../../store/filterSlice'
 import ErrorAlert from '../alert-error'
 import Filter from '../app-filter'
 import HeaderApp from '../app-header'
@@ -13,8 +13,9 @@ import { TicketsGenerateJSX } from './generate-list'
 
 const App: React.FC = () => {
   const dispatch = useDispatch()
+  const filter = useSelector((state: { store: { filter: CheckboxState[] } }) => state.store.filter)
   const searchId = useSelector((state: { store: { searchId: string | null } }) => state.store.searchId)
-  const tickets = useSelector((state: { store: { filteredTickets: Ticket[] } }) => state.store.filteredTickets)
+  const tickets = useSelector((state: { store: { tickets: Ticket[] } }) => state.store.tickets)
   const displayedTicketsCount = useSelector(
     (state: { store: { displayedTicketsCount: number } }) => state.store.displayedTicketsCount
   )
@@ -56,8 +57,8 @@ const App: React.FC = () => {
   } else if (status === 'loading') {
     return <p>{status}...</p>
   }
-
-  const shouldShowMoreButton = displayedTicketsCount < tickets.length
+  const allChecked = filter.some((checkbox) => checkbox.isCheck)
+  const shouldShowMoreButton = displayedTicketsCount < tickets.length && allChecked
 
   return (
     <>

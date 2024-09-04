@@ -21,7 +21,9 @@ export const TicketsGenerateJSX: React.FC<PropListJSX> = ({ tickets }) => {
   const status = useSelector((state: { store: { status: string | null } }) => state.store.status)
   const isFilterChecked = useSelector((state: { store: { filter: CheckboxState[] } }) => state.store.filter)
   const allChecked = isFilterChecked.some((checkbox) => checkbox.isCheck)
-
+  if (!allChecked) {
+    return <p>Рейсов, подходящих под заданные фильтры, не найдено</p>
+  }
   if (tickets.length > 0) {
     const ticketsPuck = tickets.slice(0, displayedTicketsCount)
     return (
@@ -34,9 +36,6 @@ export const TicketsGenerateJSX: React.FC<PropListJSX> = ({ tickets }) => {
       </React.Fragment>
     )
   } else {
-    if (!allChecked) {
-      return <p>Рейсов, подходящих под заданные фильтры, не найдено</p>
-    }
     return <p>{status}...</p>
   }
 }
