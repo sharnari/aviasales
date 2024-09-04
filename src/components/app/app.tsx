@@ -12,10 +12,12 @@ import styles from './app.module.scss'
 import { TicketsGenerateJSX } from './generate-list'
 
 const App: React.FC = () => {
-  const [buttonMoreStyles, setButtonMoreStyles] = useState(styles.more)
   const dispatch = useDispatch()
   const searchId = useSelector((state: { store: { searchId: string | null } }) => state.store.searchId)
   const tickets = useSelector((state: { store: { filteredTickets: Ticket[] } }) => state.store.filteredTickets)
+  const displayedTicketsCount = useSelector(
+    (state: { store: { displayedTicketsCount: number } }) => state.store.displayedTicketsCount
+  )
   const status = useSelector((state: { store: { status: string | null } }) => state.store.status)
   const error = useSelector((state: { store: { error: string | null } }) => state.store.error)
   const [isOffline, setIsOffline] = useState(false)
@@ -55,6 +57,8 @@ const App: React.FC = () => {
     return <p>{status}...</p>
   }
 
+  const shouldShowMoreButton = displayedTicketsCount < tickets.length
+
   return (
     <>
       <HeaderApp />
@@ -66,11 +70,13 @@ const App: React.FC = () => {
           <MenuApp />
           <div className="tickets">
             <ul className="tickets--list">
-              <TicketsGenerateJSX tickets={tickets} setButtonMoreStyles={setButtonMoreStyles} />
+              <TicketsGenerateJSX tickets={tickets} />
             </ul>
-            <button className={buttonMoreStyles} onClick={() => dispatch(showMoreTickets())}>
-              показать еще 5 билетов!
-            </button>
+            {shouldShowMoreButton && (
+              <button className={styles.more} onClick={() => dispatch(showMoreTickets())}>
+                Показать еще 5 билетов!
+              </button>
+            )}
           </div>
         </section>
       </main>

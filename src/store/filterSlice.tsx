@@ -29,12 +29,12 @@ export const fetchTickets = createAsyncThunk<TicketsResponse | undefined, string
   'store/fetchTickets',
   async function (searchId) {
     let shouldContinue = true
-    let skokoRazBilZapros = 0
+    // let skokoRazBilZapros = 0
     const allTickets: Ticket[] = []
     while (shouldContinue) {
       const response = await service.getTickets(searchId)
-      skokoRazBilZapros++
-      console.log(skokoRazBilZapros)
+      // skokoRazBilZapros++
+      // console.log(skokoRazBilZapros)
       if (response) {
         const { tickets, stop } = response
         allTickets.push(...tickets)
