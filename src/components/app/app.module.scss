@@ -10,12 +10,25 @@ li {
   display: grid;
   width: 80%;
   margin: 0 auto;
+  @media (max-width: 1111px) {
+    width: 90%;
+  }
+  @media (max-width: 867px) {
+    display: flex;
+    flex-direction: column;
+  }
+  @media (max-width: 511px) {
+    width: 100%;
+  }
 }
 
 .leftBar {
   grid-column: 1 / 2;
   display: flex;
   justify-content: flex-end;
+  @media (max-width: 867px) {
+    margin-bottom: 20px;
+  }
 }
 
 .contentBar {
