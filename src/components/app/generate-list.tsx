@@ -1,6 +1,6 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import uniqid from 'uniqid'
+// import uniqid from 'uniqid'
 
 import { Ticket } from '../../service/service'
 import TicketFC from '../ticket'
@@ -30,7 +30,7 @@ export const TicketsGenerateJSX: React.FC<PropListJSX> = ({ tickets }) => {
     return (
       <React.Fragment>
         {ticketsPuck.map((el) => (
-          <li key={uniqid(el.carrier)} className="tickets--list--item">
+          <li key={el.id} className="tickets--list--item">
             <TicketFC info={el} />
           </li>
         ))}

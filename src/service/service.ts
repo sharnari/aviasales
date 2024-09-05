@@ -14,6 +14,7 @@ export interface Ticket {
   price: number
   carrier: string
   segments: Segment[]
+  id: string
 }
 
 export interface TicketsResponse {

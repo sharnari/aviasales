@@ -22,32 +22,39 @@ const App: React.FC = () => {
   const status = useSelector((state: { store: { status: string | null } }) => state.store.status)
   const error = useSelector((state: { store: { error: string | null } }) => state.store.error)
   const filterTickets = useSelector((state: { store: { filterTickets: string } }) => state.store.filterTickets)
-  const [isOffline, setIsOffline] = useState(false)
+  const [isOffline, setIsOffline] = useState(!navigator.onLine)
 
   useEffect(() => {
-    const handleOnline = () => setIsOffline(false)
-    const handleOffline = () => setIsOffline(true)
+    const handleOnline = () => {
+      setIsOffline(false)
+      if (searchId) {
+        dispatch(fetchTickets(searchId)).catch(() => setIsOffline(true))
+      }
+    }
+    const handleOffline = () => {
+      setIsOffline(true)
+    }
 
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
-
+    setIsOffline(!navigator.onLine)
     return () => {
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
     }
-  }, [])
+  }, [dispatch, searchId])
 
   useEffect(() => {
     if (!navigator.onLine) {
       setIsOffline(true)
       return
     }
-    dispatch(fetchSearchId())
+    dispatch(fetchSearchId()).catch(() => setIsOffline(true))
   }, [dispatch])
 
   useEffect(() => {
     if (searchId && navigator.onLine) {
-      dispatch(fetchTickets(searchId))
+      dispatch(fetchTickets(searchId)).catch(() => setIsOffline(true))
     }
   }, [dispatch, searchId])
 
@@ -81,13 +88,10 @@ const App: React.FC = () => {
     return filteredTickets
   }, [tickets, filter, filterTickets])
 
-  if (isOffline) {
-    return <ErrorAlert errorMessage="Нет подключения к интернету. Пожалуйста, проверьте соединение." />
-  } else if (error) {
-    return <ErrorAlert errorMessage={error} />
-  } else if (status === 'loading') {
+  if (status === 'loading') {
     return <p>{status}...</p>
   }
+
   const allChecked = filter.some((checkbox) => checkbox.isCheck)
   const shouldShowMoreButton = displayedTicketsCount < tickets.length && allChecked
 
@@ -112,6 +116,13 @@ const App: React.FC = () => {
           </div>
         </section>
       </main>
+      {isOffline || error ? (
+        <ErrorAlert errorMessage="Нет подключения к интернету. Пожалуйста, проверьте соединение." />
+      ) : error ? (
+        <ErrorAlert errorMessage={error} />
+      ) : (
+        <></>
+      )}
     </>
   )
 }

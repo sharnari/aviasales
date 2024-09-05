@@ -18,7 +18,7 @@ const ErrorAlert: React.FC<ErrorAlertProps> = ({ errorMessage, onClose = () => {
   }, [onClose])
 
   return (
-    <div className={styles.errorMessage}>
+    <div className={styles.alertMessage}>
       <Alert message={errorMessage} type="error" closable />
     </div>
   )

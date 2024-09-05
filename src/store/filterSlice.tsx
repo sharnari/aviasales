@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
+import uniqid from 'uniqid'
 
 import Service, { SearchIdResponce, Ticket } from '../service/service'
 
@@ -27,10 +28,18 @@ export const fetchSearchId = createAsyncThunk<SearchIdResponce | undefined>('sto
 export const fetchTickets = createAsyncThunk<void, string>('store/fetchTickets', async (searchId, { dispatch }) => {
   let shouldContinue = true
   while (shouldContinue) {
+    if (!navigator.onLine) {
+      shouldContinue = false
+      break
+    }
     const response = await service.getTickets(searchId)
     if (response) {
       const { tickets, stop } = response
-      dispatch(addTickets(tickets)) // Добавляем новые билеты по мере получения
+      const ticketsWithId = tickets.map((ticket) => ({
+        ...ticket,
+        id: uniqid(ticket.carrier),
+      }))
+      dispatch(addTickets(ticketsWithId))
       shouldContinue = !stop
     }
   }
