@@ -1,8 +1,8 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-// import uniqid from 'uniqid'
 
 import { Ticket } from '../../service/service'
+import ErrorAlert from '../alert-error'
 import TicketFC from '../ticket'
 
 interface PropListJSX {
@@ -19,6 +19,7 @@ export const TicketsGenerateJSX: React.FC<PropListJSX> = ({ tickets }) => {
   const displayedTicketsCount = useSelector(
     (state: { store: { displayedTicketsCount: number } }) => state.store.displayedTicketsCount
   )
+  const error = useSelector((state: { store: { error: string | null } }) => state.store.error)
   const status = useSelector((state: { store: { status: string | null } }) => state.store.status)
   const isFilterChecked = useSelector((state: { store: { filter: CheckboxState[] } }) => state.store.filter)
   const allChecked = isFilterChecked.some((checkbox) => checkbox.isCheck)
@@ -36,7 +37,7 @@ export const TicketsGenerateJSX: React.FC<PropListJSX> = ({ tickets }) => {
         ))}
       </React.Fragment>
     )
-  } else {
-    return <p>{status}...</p>
-  }
+  } else if (error) {
+    return <ErrorAlert errorMessage={'Не удалось загрузить ключ доступа('}></ErrorAlert>
+  } else return <p>{status}...</p>
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
 import uniqid from 'uniqid'
 
@@ -21,29 +22,43 @@ export interface StateAviasales {
 
 const service: Service = new Service()
 
-export const fetchSearchId = createAsyncThunk<SearchIdResponce | undefined>('store/fetchSearchId', async function () {
-  return await service.getSearchId()
-})
-
-export const fetchTickets = createAsyncThunk<void, string>('store/fetchTickets', async (searchId, { dispatch }) => {
-  let shouldContinue = true
-  while (shouldContinue) {
-    if (!navigator.onLine) {
-      shouldContinue = false
-      break
-    }
-    const response = await service.getTickets(searchId)
-    if (response) {
-      const { tickets, stop } = response
-      const ticketsWithId = tickets.map((ticket) => ({
-        ...ticket,
-        id: uniqid(ticket.carrier),
-      }))
-      dispatch(addTickets(ticketsWithId))
-      shouldContinue = !stop
+export const fetchSearchId = createAsyncThunk<SearchIdResponce | undefined, void, { rejectValue: string }>(
+  'store/fetchSearchId',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await service.getSearchId()
+      return response
+    } catch (error) {
+      return rejectWithValue('Error fetching search ID')
     }
   }
-})
+)
+
+export const fetchTickets = createAsyncThunk<void, string, { rejectValue: string }>(
+  'store/fetchTickets',
+  async (searchId, { dispatch, rejectWithValue }) => {
+    let shouldContinue = true
+    while (shouldContinue) {
+      if (!navigator.onLine) {
+        return rejectWithValue('No internet connection')
+      }
+      try {
+        const response = await service.getTickets(searchId)
+        if (response) {
+          const { tickets, stop } = response
+          const ticketsWithId = tickets.map((ticket) => ({
+            ...ticket,
+            id: uniqid(ticket.carrier),
+          }))
+          dispatch(addTickets(ticketsWithId))
+          shouldContinue = !stop
+        }
+      } catch (error: any) {
+        return rejectWithValue(error.message || 'Failed to fetch tickets')
+      }
+    }
+  }
+)
 
 const initialState: StateAviasales = {
   filter: [
@@ -100,18 +115,23 @@ const filterSlice = createSlice({
     addTickets(state, action: PayloadAction<Ticket[]>) {
       state.tickets.push(...action.payload) // Добавляем новые билеты
     },
+
+    setError(state, action: PayloadAction<string | null>) {
+      state.error = action.payload
+    },
   },
 
   extraReducers: (builder) => {
     builder.addCase(fetchSearchId.pending, (state) => {
       state.status = 'loading'
-      state.error = null
     })
     builder.addCase(fetchSearchId.fulfilled, (state, action) => {
       if (action.payload) {
         state.searchId = action.payload.searchId
+      } else {
+        state.status = 'failed'
+        state.error = 'Failed to fetch searchId'
       }
-      state.status = 'succeeded'
     })
     builder.addCase(fetchSearchId.rejected, (state, action) => {
       state.status = 'failed'
@@ -130,5 +150,5 @@ const filterSlice = createSlice({
   },
 })
 
-export const { handleCheckboxChange, handleRadioChange, showMoreTickets, addTickets } = filterSlice.actions
+export const { handleCheckboxChange, handleRadioChange, showMoreTickets, addTickets, setError } = filterSlice.actions
 export default filterSlice.reducer

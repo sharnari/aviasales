@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react'
 
 import { Ticket } from '../../service/service'
 import { useDispatch, useSelector } from '../../store'
-import { fetchSearchId, fetchTickets, showMoreTickets, CheckboxState } from '../../store/filterSlice'
+import { fetchSearchId, fetchTickets, showMoreTickets, CheckboxState, setError } from '../../store/filterSlice'
 import ErrorAlert from '../alert-error'
 import Filter from '../app-filter'
 import HeaderApp from '../app-header'
@@ -28,9 +28,10 @@ const App: React.FC = () => {
     const handleOnline = () => {
       setIsOffline(false)
       if (searchId) {
-        dispatch(fetchTickets(searchId)).catch(() => setIsOffline(true))
+        dispatch(fetchTickets(searchId))
       }
     }
+
     const handleOffline = () => {
       setIsOffline(true)
     }
@@ -49,7 +50,10 @@ const App: React.FC = () => {
       setIsOffline(true)
       return
     }
-    dispatch(fetchSearchId()).catch(() => setIsOffline(true))
+    dispatch(fetchSearchId()).catch(() => {
+      setIsOffline(true)
+      dispatch(setError('Ошибка получения данных'))
+    })
   }, [dispatch])
 
   useEffect(() => {
@@ -116,7 +120,7 @@ const App: React.FC = () => {
           </div>
         </section>
       </main>
-      {isOffline || error ? (
+      {isOffline ? (
         <ErrorAlert errorMessage="Нет подключения к интернету. Пожалуйста, проверьте соединение." />
       ) : error ? (
         <ErrorAlert errorMessage={error} />
