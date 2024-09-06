@@ -53,11 +53,6 @@ export default class Service {
     return await this.wrapperQueryTryCatch(queryURL)
   }
 
-  getTickets = async (searchId: string): Promise<TicketsResponse | undefined> => {
-    const queryURL = `${this.baseURL}${this.ticketsURL}?searchId=${searchId}`
-    return await this.wrapperQueryTryCatch(queryURL)
-  }
-
   getImage = (name: string) => {
     return `${this.imagesURL}/${name}.png`
   }
