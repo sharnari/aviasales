@@ -20,6 +20,7 @@ export interface Ticket {
 export interface TicketsResponse {
   tickets: Ticket[]
   stop: boolean
+  status: number
 }
 
 export default class Service {
@@ -39,7 +40,9 @@ export default class Service {
       if (!response.ok) {
         throw new Error(`Could not fetch ${queryURL} received ${response.status}`)
       }
-      return await response.json()
+      const status = response.status
+      const data = await response.json()
+      return { ...data, status }
     } catch (error) {
       console.error('Fetch error:', error)
     }

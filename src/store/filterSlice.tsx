@@ -38,23 +38,50 @@ export const fetchTickets = createAsyncThunk<void, string, { rejectValue: string
   'store/fetchTickets',
   async (searchId, { dispatch, rejectWithValue }) => {
     let shouldContinue = true
+
     while (shouldContinue) {
       if (!navigator.onLine) {
         return rejectWithValue('No internet connection')
       }
+
+      const queryURL = `${service.baseURL}${service.ticketsURL}?searchId=${searchId}`
+
       try {
-        const response = await service.getTickets(searchId)
-        if (response) {
-          const { tickets, stop } = response
-          const ticketsWithId = tickets.map((ticket) => ({
+        const response = await fetch(queryURL, service.options)
+
+        // Проверяем на 404
+        if (response.status === 404) {
+          return rejectWithValue('Error 404: Resource not found')
+        }
+
+        // Ожидаем данных от ответа
+        const data = await response.json()
+
+        if (data) {
+          const { tickets, stop } = data
+
+          // Генерация уникальных id для билетов
+          const ticketsWithId = tickets.map((ticket: any) => ({
             ...ticket,
             id: uniqid(ticket.carrier),
           }))
+
+          // Отправляем билеты в redux
           dispatch(addTickets(ticketsWithId))
-          shouldContinue = !stop
+
+          // Если получаем stop === true, прекращаем цикл
+          if (stop) {
+            shouldContinue = false
+          }
         }
       } catch (error: any) {
-        return rejectWithValue(error.message || 'Failed to fetch tickets')
+        // Если ошибка 404
+        if (error.message.includes('404')) {
+          shouldContinue = false
+          return rejectWithValue('Error 404: Resource not found')
+        }
+
+        console.warn('Retrying request due to error:', error.message)
       }
     }
   }
