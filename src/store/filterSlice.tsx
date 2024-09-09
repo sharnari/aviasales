@@ -38,7 +38,6 @@ export const fetchTickets = createAsyncThunk<void, string, { rejectValue: string
   'store/fetchTickets',
   async (searchId, { dispatch, rejectWithValue }) => {
     let shouldContinue = true
-
     while (shouldContinue) {
       if (!navigator.onLine) {
         return rejectWithValue('No internet connection')
@@ -46,11 +45,10 @@ export const fetchTickets = createAsyncThunk<void, string, { rejectValue: string
       const queryURL = `${service.baseURL}${service.ticketsURL}?searchId=${searchId}`
       try {
         const response = await fetch(queryURL, service.options)
-        if (response.status === 404) {
-          return rejectWithValue('Error 404: Resource not found')
+        if (response.status >= 400 && response.status <= 499) {
+          return rejectWithValue(`Error ${response.status}: Resource not found`)
         }
         const data = await response.json()
-
         if (data) {
           const { tickets, stop } = data
           const ticketsWithId = tickets.map((ticket: any) => ({
@@ -63,12 +61,7 @@ export const fetchTickets = createAsyncThunk<void, string, { rejectValue: string
           }
         }
       } catch (error: any) {
-        if (error.message.includes('404')) {
-          shouldContinue = false
-          return rejectWithValue('Error 404: Resource not found')
-        }
-
-        console.warn('Retrying request due to error:', error.message)
+        console.warn('Error occurred:', error.message || error)
       }
     }
   }
@@ -127,7 +120,7 @@ const filterSlice = createSlice({
     },
 
     addTickets(state, action: PayloadAction<Ticket[]>) {
-      state.tickets.push(...action.payload) // Добавляем новые билеты
+      state.tickets.push(...action.payload)
     },
 
     setError(state, action: PayloadAction<string | null>) {
@@ -149,7 +142,7 @@ const filterSlice = createSlice({
     })
     builder.addCase(fetchSearchId.rejected, (state, action) => {
       state.status = 'failed'
-      state.error = action.error.message || 'Failed to fetch tickets'
+      state.error = action.payload || 'Failed to fetch tickets'
     })
     builder.addCase(fetchTickets.pending, (state) => {
       state.status = 'loading tickets'
@@ -159,7 +152,7 @@ const filterSlice = createSlice({
     })
     builder.addCase(fetchTickets.rejected, (state, action) => {
       state.status = 'tickets failed'
-      state.error = action.error.message || 'Failed to fetch tickets'
+      state.error = action.payload || 'Failed to fetch tickets'
     })
   },
 })

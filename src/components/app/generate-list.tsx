@@ -38,6 +38,6 @@ export const TicketsGenerateJSX: React.FC<PropListJSX> = ({ tickets }) => {
       </React.Fragment>
     )
   } else if (error) {
-    return <ErrorAlert errorMessage={'Не удалось загрузить ключ доступа('}></ErrorAlert>
+    return <ErrorAlert errorMessage={'Кажется, что-то пошло не так!'}></ErrorAlert>
   } else return <p>{status}...</p>
 }
